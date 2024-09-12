@@ -3,6 +3,18 @@ const app = express();
 
 app.use(express.json());
 
+function validateExistingId(req, res, next){
+    const reqID = req.params.id;
+    employeeData.map((each)=>{
+        if(each.id !== reqID){
+            res.status(404).json({msg: 'Id not found'}); 
+        }
+        else{
+            next();
+        }
+    })
+}
+
 let employeeData = [
     {
         name:"Digbijaya Biswal",
@@ -26,15 +38,9 @@ app.post("/", function(req,res){
     
 })
 
-app.put('/:id', function(req,res){
+app.put('/:id', validateExistingId, function(req,res){
     // console.log(req.params.id)
     const reqID = req.params.id;
-    employeeData.map((each)=>{
-        if(each.id !== reqID){
-            res.status(404).send('Id not found'); 
-        }
-    })
-
   employeeData.filter((each) =>{
    if(each.id === reqID){
     each.department = req.body.department;
@@ -48,14 +54,9 @@ app.put('/:id', function(req,res){
 )
 
 
-app.delete('/:id', function(req,res){
+app.delete('/:id', validateExistingId, function(req,res){
     // console.log(req.params.id)
     const reqID = req.params.id;
-    employeeData.map((each)=>{
-        if(each.id !== reqID){
-            res.status(404).send('Id not found'); 
-        }
-    })
   employeeData = employeeData.filter((each) =>{ return each.id !== reqID })
 
   res.send("deleted")
@@ -66,4 +67,4 @@ app.listen(3000,()=>{
 });
 
 // 112, 131, video
-//15 video completed 
+//21 video continue -  49
