@@ -1,8 +1,15 @@
 const express = require("express");
+const zod = require("zod")
 const app = express();
 
 app.use(express.json());
 
+const employeeDataSchema = zod.object({
+    name: zod.string(),
+    designation: zod.string(),
+    department: zod.string(),
+    id: zod.string()
+})
 function validateExistingId(req, res, next){
     const reqID = req.params.id;
     employeeData.map((each)=>{
@@ -29,13 +36,17 @@ app.get("/", function(req, res){
 })
 
 app.post("/", function(req,res){
-    if(!req.body.name ){
-        res.status(400).send('fill all required data!');
-    }else{
+    req.body
+    const inputValidation = employeeDataSchema.safeParse(req.body);
+    if(!inputValidation.success){
+        res.status(411).json({
+            msg: "Input is invalid!"
+        })
+    }
+   else{
         employeeData.push(req.body);
         res.send("Data has been saved!!")
     }
-    
 })
 
 app.put('/:id', validateExistingId, function(req,res){
@@ -62,6 +73,17 @@ app.delete('/:id', validateExistingId, function(req,res){
   res.send("deleted")
 
 })
+
+
+//global catches or it's called error  base middleware
+app.use(function(err, req, res, next){
+    res.json({
+        msg:"Sorry something is wrong with our server!"
+    })
+})
+
+
+
 app.listen(3000,()=>{
     console.log("started");
 });
